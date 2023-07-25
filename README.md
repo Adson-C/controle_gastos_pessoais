@@ -1,1 +1,1 @@
-# Controle de gastos pessoais.
+# Controle de gastos pessoais
