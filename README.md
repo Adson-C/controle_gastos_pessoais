@@ -1,1 +1,1 @@
-# finan-as
+# Controle de gastos pessoais.
