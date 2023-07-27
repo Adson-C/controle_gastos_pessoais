@@ -3,8 +3,10 @@ package com.example.ads_organizze.activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.ads_organizze.adapter.AdapterMovimentacao;
 import com.example.ads_organizze.config.ConfiguracaoFireBase;
 import com.example.ads_organizze.helper.Base64Custom;
+import com.example.ads_organizze.model.Movimentacao;
 import com.example.ads_organizze.model.Usuario;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -19,6 +21,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ads_organizze.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,14 +35,19 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PrincipalActivity extends AppCompatActivity {
 
     private MaterialCalendarView calendarView;
+    private RecyclerView recyclerView;
     private TextView textSaudacao, textSaldo;
     private Double despesasTotal = 0.0;
     private Double receitaTotal = 0.0;
     private Double resumoUsuario = 0.0;
+    private AdapterMovimentacao adapterMovimentacao;
+    private List<Movimentacao> movimentacaos = new ArrayList<>();
 
     private DatabaseReference usuarioRef;
 
@@ -56,10 +65,18 @@ public class PrincipalActivity extends AppCompatActivity {
 
         textSaudacao =  findViewById(R.id.texSaudacao);
         textSaldo =  findViewById(R.id.textSaldo);
-
+        recyclerView = findViewById(R.id.recyclerMovimentacao);
         calendarView = findViewById(R.id.viewCalender);
         configuraCalenderView();
 
+        // Configurar adapter
+        adapterMovimentacao = new AdapterMovimentacao(movimentacaos, this);
+
+        // Configurar RecyclerView
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+            recyclerView.setLayoutManager( layoutManager );
+            recyclerView.setHasFixedSize( true);
+            recyclerView.setAdapter( adapterMovimentacao );
 
         /*FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -71,11 +88,7 @@ public class PrincipalActivity extends AppCompatActivity {
         });*/
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        recuperarResumo();
-    }
+
 
     // recuperando saldos Totais
     public void recuperarResumo(){
@@ -139,6 +152,11 @@ public class PrincipalActivity extends AppCompatActivity {
     }
     public void  adicionarReceitas(View view){
         startActivity(new Intent(this, ReceitaActivity.class));
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        recuperarResumo();
     }
 
     @Override
