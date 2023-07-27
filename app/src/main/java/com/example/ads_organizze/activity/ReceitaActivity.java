@@ -28,6 +28,7 @@ public class ReceitaActivity extends AppCompatActivity {
     private Movimentacao movimentacao;
     private DatabaseReference firebasRef = ConfiguracaoFireBase.getFirebaseDatabase();
     private FirebaseAuth autenticacao = ConfiguracaoFireBase.getFirebaseAutenticacao();
+
     private Double receitaTotal;
 
     @Override

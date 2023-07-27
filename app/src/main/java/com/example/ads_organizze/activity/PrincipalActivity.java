@@ -9,13 +9,19 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.ads_organizze.R;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 
 public class PrincipalActivity extends AppCompatActivity {
 
+    private MaterialCalendarView calendarView;
+    private TextView textSaudacao, textSaldo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +29,12 @@ public class PrincipalActivity extends AppCompatActivity {
         setContentView(R.layout.activity_principal);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        textSaudacao =  findViewById(R.id.texSaudacao);
+        textSaldo =  findViewById(R.id.textSaldo);
+
+        calendarView = findViewById(R.id.viewCalender);
+        configuraCalenderView();
 
         /*FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -32,6 +44,15 @@ public class PrincipalActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });*/
+    }
+
+    private void configuraCalenderView() {
+        calendarView.setOnMonthChangedListener(new OnMonthChangedListener() {
+            @Override
+            public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
+
+            }
+        });
     }
 
     public void adicionarDespesas(View view){
