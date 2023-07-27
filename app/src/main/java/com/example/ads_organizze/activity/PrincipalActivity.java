@@ -12,6 +12,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,6 +39,10 @@ public class PrincipalActivity extends AppCompatActivity {
     private Double despesasTotal = 0.0;
     private Double receitaTotal = 0.0;
     private Double resumoUsuario = 0.0;
+
+    private DatabaseReference usuarioRef;
+
+    private ValueEventListener valueEventListenerUsuario;
     private FirebaseAuth autenticacao = ConfiguracaoFireBase.getFirebaseAutenticacao();
 
     private DatabaseReference firebaseRef = ConfiguracaoFireBase.getFirebaseDatabase();
@@ -54,7 +59,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
         calendarView = findViewById(R.id.viewCalender);
         configuraCalenderView();
-        recuperarResumo();
+
 
         /*FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -66,12 +71,19 @@ public class PrincipalActivity extends AppCompatActivity {
         });*/
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        recuperarResumo();
+    }
+
     // recuperando saldos Totais
     public void recuperarResumo(){
         String emailUsuario = autenticacao.getCurrentUser().getEmail();
         String idUsuario = Base64Custom.codificarBase64( emailUsuario );
-        DatabaseReference usuarioRef = firebaseRef.child("usuarios").child(idUsuario);
-        usuarioRef.addValueEventListener(new ValueEventListener() {
+        usuarioRef = firebaseRef.child("usuarios").child(idUsuario);
+        Log.i("Evento", "evento foi adcionado!");
+         valueEventListenerUsuario =  usuarioRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -129,4 +141,10 @@ public class PrincipalActivity extends AppCompatActivity {
         startActivity(new Intent(this, ReceitaActivity.class));
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i("Evento", "evento foi removido");
+        usuarioRef.removeEventListener( valueEventListenerUsuario );
+    }
 }
