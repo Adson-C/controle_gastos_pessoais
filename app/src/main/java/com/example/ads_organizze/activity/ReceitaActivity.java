@@ -62,6 +62,8 @@ public class ReceitaActivity extends AppCompatActivity {
             atualizarReceita(receitaAtualizar );
 
             movimentacao.salvar( data );
+
+            finish();
         }
     }
     public Boolean validarCamposReceitas(){
