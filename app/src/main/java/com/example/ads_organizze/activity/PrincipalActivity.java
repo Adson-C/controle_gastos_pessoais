@@ -52,7 +52,7 @@ public class PrincipalActivity extends AppCompatActivity {
     private Double resumoUsuario = 0.0;
     private AdapterMovimentacao adapterMovimentacao;
     private List<Movimentacao> movimentacaos = new ArrayList<>();
-    private Movimentacao movicao;
+    private Movimentacao movimentacao;
     private DatabaseReference movimentacaoRef;
     private String mesAnoSeleciondado;
 
@@ -134,7 +134,7 @@ public class PrincipalActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
                 int position = viewHolder.getAdapterPosition();
-                movicao = movimentacaos.get( position );
+                movimentacao = movimentacaos.get( position );
 
                 String emailUsuario = autenticacao.getCurrentUser().getEmail();
                 String idUsuario = Base64Custom.codificarBase64( emailUsuario );
@@ -142,8 +142,9 @@ public class PrincipalActivity extends AppCompatActivity {
                         .child( idUsuario )
                         .child(mesAnoSeleciondado);
 
-                movimentacaoRef.child(movicao.getKey()).removeValue();
+                movimentacaoRef.child(movimentacao.getKey()).removeValue();
                 adapterMovimentacao.notifyItemRemoved( position );
+                atualizarSaldo();
 
             }
         });
@@ -158,6 +159,24 @@ public class PrincipalActivity extends AppCompatActivity {
 
         AlertDialog alert = alertdialog.create();
         alert.show();
+    }
+
+    public void atualizarSaldo(){
+
+        String emailUsuario = autenticacao.getCurrentUser().getEmail();
+        String idUsuario = Base64Custom.codificarBase64( emailUsuario );
+        usuarioRef = firebaseRef.child("usuarios").child(idUsuario);
+
+        if (movimentacao.getTipo().equals("r")){
+            receitaTotal = receitaTotal - Double.valueOf(movimentacao.getValor());
+            usuarioRef.child("receitaTotal").setValue(receitaTotal);
+        }
+
+        if (movimentacao.getTipo().equals("d")){
+            despesasTotal = despesasTotal - Double.valueOf(movimentacao.getValor());
+            usuarioRef.child("despesaTotal").setValue(despesasTotal);
+        }
+
     }
 
     public void recuperarMovimentacoes(){
@@ -271,7 +290,6 @@ public class PrincipalActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i("Evento", "evento foi removido");
         usuarioRef.removeEventListener( valueEventListenerUsuario );
         movimentacaoRef.removeEventListener( valueEventListenerMovimentacao);
     }
