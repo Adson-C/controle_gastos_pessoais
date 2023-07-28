@@ -1,5 +1,6 @@
 package com.example.ads_organizze.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -12,6 +13,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
@@ -19,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -49,6 +52,7 @@ public class PrincipalActivity extends AppCompatActivity {
     private Double resumoUsuario = 0.0;
     private AdapterMovimentacao adapterMovimentacao;
     private List<Movimentacao> movimentacaos = new ArrayList<>();
+    private Movimentacao movicao;
     private DatabaseReference movimentacaoRef;
     private String mesAnoSeleciondado;
 
@@ -112,11 +116,48 @@ public class PrincipalActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
+                excluirMovimentacao( viewHolder );
             }
         };
 
         new ItemTouchHelper( itemTouch ).attachToRecyclerView(recyclerView);
+    }
+
+    public void excluirMovimentacao(RecyclerView.ViewHolder viewHolder){
+        AlertDialog.Builder alertdialog = new AlertDialog.Builder(this);
+        // Configurar AlertDialog
+        alertdialog.setTitle("Excluir Movimentação da Conta");
+        alertdialog.setMessage("Tem certeza que deseja Excluir essa Movimentção!");
+        alertdialog.setCancelable(false);
+
+        alertdialog.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                int position = viewHolder.getAdapterPosition();
+                movicao = movimentacaos.get( position );
+
+                String emailUsuario = autenticacao.getCurrentUser().getEmail();
+                String idUsuario = Base64Custom.codificarBase64( emailUsuario );
+                movimentacaoRef = firebaseRef.child("movimentacao")
+                        .child( idUsuario )
+                        .child(mesAnoSeleciondado);
+
+                movimentacaoRef.child(movicao.getKey()).removeValue();
+                adapterMovimentacao.notifyItemRemoved( position );
+
+            }
+        });
+
+        alertdialog.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                Toast.makeText(PrincipalActivity.this, "Cancelado", Toast.LENGTH_SHORT).show();
+                adapterMovimentacao.notifyDataSetChanged();
+            }
+        });
+
+        AlertDialog alert = alertdialog.create();
+        alert.show();
     }
 
     public void recuperarMovimentacoes(){
@@ -133,10 +174,10 @@ public class PrincipalActivity extends AppCompatActivity {
 
                 for (DataSnapshot  dados: snapshot.getChildren() ){
                     Movimentacao movimentacao = dados.getValue(Movimentacao.class);
+                    movimentacao.setKey(dados.getKey());
                     movimentacaos.add(movimentacao);
 
 
-                    Log.i("Dados", "dadas " + movimentacao.getCategoria());
                 }
                 adapterMovimentacao.notifyDataSetChanged();
             }
